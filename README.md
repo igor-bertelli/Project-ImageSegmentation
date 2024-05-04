@@ -1,1 +1,1 @@
-# Project-ImageSegmentation
+# Project - Image Segmentation
