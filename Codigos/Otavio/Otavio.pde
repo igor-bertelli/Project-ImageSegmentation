@@ -2,13 +2,15 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 PImage img;
-PImage mask;
 PImage middleImage;
+PImage comparacao;
+PImage mask;
 
 void setup() {
   img = loadImage("0230.jpg"); // Certifique-se de colocar o caminho correto da imagem
-  mask = createImage(img.width, img.height, RGB);
+  
   middleImage = createImage(img.width, img.height, RGB);
+  comparacao = createImage(img.width, img.height, RGB);
 
   adjustContrast(img, middleImage, 10);
   saveImage(middleImage, "middleImage1");
@@ -26,6 +28,11 @@ void setup() {
   saveImage(middleImage, "middleImage7");
   processHoles(middleImage, middleImage);
   saveImage(middleImage, "middleImage8");
+  fillHolesBasedOnBorderContact(middleImage, middleImage, 5);
+  saveImage(middleImage, "mask");
+  mask = loadImage("mask.png");
+  compareImages(mask, middleImage, comparacao);
+  saveImage(comparacao, "comparacao");
 }
 
 void increaseSaturation(PImage inputImage, PImage outputImage, float saturationFactor) {
@@ -336,6 +343,96 @@ void floodFill(PImage inputImg, PImage outputImg, int x, int y, color c, int[][]
     stack.push(new int[]{x, y - 1});
   }
 }
+
+void fillHolesBasedOnBorderContact(PImage inputImg, PImage outputImg, int maxBorderPixels) {
+    inputImg.loadPixels();
+    outputImg.loadPixels();
+    int width = inputImg.width;
+    int height = inputImg.height;
+
+    // Matriz para rastrear se um pixel já foi visitado
+    boolean[][] visited = new boolean[width][height];
+
+    // Para cada pixel na imagem
+    for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+            // Se o pixel for preto e ainda não visitado
+            if (!visited[x][y] && brightness(inputImg.pixels[x + y * width]) == 0) {
+                // Conta quantos pixels desse grupo tocam as bordas
+                int borderTouchCount = countBorderTouch(inputImg, visited, x, y, width, height);
+
+                // Preencher o grupo se a contagem de borda for menor que o limite especificado
+                if (borderTouchCount < maxBorderPixels) {
+                    fillGroup(outputImg, x, y, width, height, color(255)); // Pintar de branco
+                }
+            }
+        }
+    }
+    outputImg.updatePixels();
+}
+
+int countBorderTouch(PImage img, boolean[][] visited, int startX, int startY, int width, int height) {
+    int count = 0;
+    Stack<int[]> stack = new Stack<>();
+    stack.push(new int[]{startX, startY});
+    while (!stack.isEmpty()) {
+        int[] pos = stack.pop();
+        int x = pos[0];
+        int y = pos[1];
+
+        if (x < 0 || x >= width || y < 0 || y >= height || visited[x][y]) continue;
+        visited[x][y] = true;
+
+        if (brightness(img.pixels[x + y * width]) == 0) {
+            // Incrementar a contagem se o pixel estiver em alguma borda
+            if (x == 0 || x == width - 1 || y == 0 || y == height - 1) count++;
+
+            // Adicionar vizinhos ao stack
+            stack.push(new int[]{x + 1, y});
+            stack.push(new int[]{x - 1, y});
+            stack.push(new int[]{x, y + 1});
+            stack.push(new int[]{x, y - 1});
+        }
+    }
+    return count;
+}
+
+void fillGroup(PImage img, int startX, int startY, int width, int height, color fillColor) {
+    Stack<int[]> stack = new Stack<>();
+    stack.push(new int[]{startX, startY});
+    while (!stack.isEmpty()) {
+        int[] pos = stack.pop();
+        int x = pos[0];
+        int y = pos[1];
+
+        if (x < 0 || x >= width || y < 0 || y >= height) continue;
+
+        if (img.pixels[x + y * width] == color(0)) { // Apenas pixels pretos são preenchidos
+            img.pixels[x + y * width] = fillColor;
+
+            // Adicionar vizinhos ao stack
+            stack.push(new int[]{x + 1, y});
+            stack.push(new int[]{x - 1, y});
+            stack.push(new int[]{x, y + 1});
+            stack.push(new int[]{x, y - 1});
+        }
+    }
+}
+
+void compareImages(PImage img1, PImage img2, PImage outputImg) {
+  img1.loadPixels();
+  img2.loadPixels();
+  outputImg.loadPixels();
+
+  for (int i = 0; i < img1.pixels.length; i++) {
+    if (img1.pixels[i] != img2.pixels[i]) {
+      outputImg.pixels[i] = color(255, 0, 0); // Paint differing pixels in red
+    }
+  }
+
+  outputImg.updatePixels();
+}
+
 
 
 void saveImage(PImage img, String str) {
