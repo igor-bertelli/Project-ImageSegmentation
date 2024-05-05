@@ -5,18 +5,20 @@ PImage img;
 PImage middleImage;
 PImage comparacao;
 PImage mask;
+PImage ground_truth;
 
 void setup() {
   img = loadImage("0230.jpg"); // Certifique-se de colocar o caminho correto da imagem
   
   middleImage = createImage(img.width, img.height, RGB);
   comparacao = createImage(img.width, img.height, RGB);
+  ground_truth = loadImage("ground_truth.png");
 
   adjustContrast(img, middleImage, 10);
   saveImage(middleImage, "middleImage1");
-  increaseSaturation(middleImage, middleImage, 20);
+  increaseSaturation(middleImage, middleImage, 30);
   saveImage(middleImage, "middleImage2");
-  applyCompositeColorToBlackFilter(middleImage, middleImage, 0, 50, 50, 230);
+  applyCompositeColorToBlackFilter(middleImage, middleImage, 0, 55, 25, 255);
   saveImage(middleImage, "middleImage3");
   applyRGBMaxFilter(middleImage, middleImage);
   saveImage(middleImage, "middleImage4");
@@ -28,10 +30,10 @@ void setup() {
   saveImage(middleImage, "middleImage7");
   processHoles(middleImage, middleImage);
   saveImage(middleImage, "middleImage8");
-  fillHolesBasedOnBorderContact(middleImage, middleImage, 5);
+  fillHolesBasedOnBorderContact(middleImage, middleImage, 20);
   saveImage(middleImage, "mask");
   mask = loadImage("mask.png");
-  compareImages(mask, middleImage, comparacao);
+  compareImages(mask, ground_truth, comparacao);
   saveImage(comparacao, "comparacao");
 }
 
@@ -425,8 +427,10 @@ void compareImages(PImage img1, PImage img2, PImage outputImg) {
   outputImg.loadPixels();
 
   for (int i = 0; i < img1.pixels.length; i++) {
-    if (img1.pixels[i] != img2.pixels[i]) {
+    if (brightness(img1.pixels[i]) == 255 && brightness(img2.pixels[i]) == 0) {
       outputImg.pixels[i] = color(255, 0, 0); // Paint differing pixels in red
+    } else if (brightness(img1.pixels[i]) == 0 && brightness(img2.pixels[i]) == 255){
+      outputImg.pixels[i] = color(0, 255, 0); // Paint matching pixels in green
     }
   }
 
