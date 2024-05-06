@@ -22,7 +22,7 @@ void setup() {
   saveImage(middleImage_2, "middleImage23");
   increaseSaturationWithMin(middleImage_2, middleImage_2, 30,45);
   saveImage(middleImage_2, "middleImage24");
-  applyCompositeColorToBlackFilter(middleImage_2, middleImage_2, 20, 150, 30, 250);
+  applyCompositeColorToBlackFilter(middleImage_2, middleImage_2, 10, 150, 15, 250);
   saveImage(middleImage_2, "middleImage25");
   applyRGBMaxFilter(middleImage_2, middleImage_2);
   saveImage(middleImage_2, "middleImage26");
