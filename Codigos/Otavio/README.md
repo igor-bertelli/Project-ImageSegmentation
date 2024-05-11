@@ -38,6 +38,6 @@ As operações geram várias imagens intermediárias:
 
 - `mask.png`: A máscara gerada após aplicação dos filtros.
 
-- `comparacao.png`: Uma comparação de `mask.png` com `ground_truth.png`, mostrando as diferenças pixel a pixel, verde se existir em `mask.png` e não em `ground_truth.png` e vermelho se existir em `ground_truth.png` e não existir em `mask.png`.
+- `comparacao.png`: Uma comparação de `mask.png` com `ground_truth.png`, mostrando as diferenças pixel a pixel, vermelho se existir em `mask.png` e não em `ground_truth.png` e verde se existir em `ground_truth.png` e não existir em `mask.png`.
 
 Este projeto demonstra a flexibilidade do Processing na manipulação e no processamento de imagens, fornecendo uma ferramenta poderosa para análises visuais detalhadas e desenvolvimento de algoritmos de processamento de imagem.
