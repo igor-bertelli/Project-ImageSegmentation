@@ -29,7 +29,7 @@ void setup() {
   applyMedianFilter(middleImage_2, middleImage_2, 3);
   saveImage(middleImage_2, "middleImage23");
   paintPixelsOutsideBoundingBox(middleImage_2, 120, 20, 245, 480);
-
+saveImage(middleImage_2, "middleImage24");
   //  Separação de cores
 
   //Vermelho
