@@ -47,8 +47,6 @@ saveImage(middleImage_2, "middleImage24");
   saveImage(redImage_2, "redImage6");
   processHoles(redImage_2, redImage_2);
   saveImage(redImage_2, "redImage7");
-  fillHolesBasedOnBorderContact(redImage_2, redImage_2, 20);
-  saveImage(redImage_2, "redImage8");
   
   // Azul
   increaseSaturationWithMin(middleImage_2, blueImage_2, 30,45);
