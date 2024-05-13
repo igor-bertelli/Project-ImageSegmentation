@@ -3,6 +3,10 @@ import java.util.Stack;
 
 PImage img_2;
 PImage middleImage_2;
+PImage blueImage_2;
+PImage redImage_2;
+PImage yellowImage_2;
+PImage sumImage_2;
 PImage comparacao_2;
 PImage mask_2;
 PImage ground_truth_2;
@@ -11,31 +15,73 @@ void setup() {
   img_2 = loadImage("0441.jpg"); // Certifique-se de colocar o caminho correto da imagem
   
   middleImage_2 = createImage(img_2.width, img_2.height, RGB);
+  redImage_2 = createImage(img_2.width, img_2.height, RGB);
+  blueImage_2 = createImage(img_2.width, img_2.height, RGB);
   comparacao_2 = createImage(img_2.width, img_2.height, RGB);
+  yellowImage_2 = createImage(img_2.width, img_2.height, RGB);
+  sumImage_2 = createImage(img_2.width, img_2.height, RGB);
   ground_truth_2 = loadImage("ground_truth_2.png");
 
   adjustContrast(img_2, middleImage_2, 10);
   saveImage(middleImage_2, "middleImage21");
-  increaseSaturationWithMin(middleImage_2, middleImage_2, 30,40);
+  increaseSaturationWithMin(middleImage_2, middleImage_2, 30,25);
   saveImage(middleImage_2, "middleImage22");
   applyMedianFilter(middleImage_2, middleImage_2, 3);
   saveImage(middleImage_2, "middleImage23");
-  increaseSaturationWithMin(middleImage_2, middleImage_2, 30,45);
-  saveImage(middleImage_2, "middleImage24");
-  applyCompositeColorToBlackFilter(middleImage_2, middleImage_2, 10, 150, 15, 250);
-  saveImage(middleImage_2, "middleImage25");
-  applyRGBMaxFilter(middleImage_2, middleImage_2);
-  saveImage(middleImage_2, "middleImage26");
-  applyRedFilter(middleImage_2, middleImage_2);
-  saveImage(middleImage_2, "middleImage27");
-  applyBlackToWhiteFilter(middleImage_2, middleImage_2);
-  saveImage(middleImage_2, "middleImage28");
-  applyNeighborFilter(middleImage_2, middleImage_2);
-  saveImage(middleImage_2, "middleImage29");
-  processHoles(middleImage_2, middleImage_2);
-  saveImage(middleImage_2, "middleImage210");
-  fillHolesBasedOnBorderContact(middleImage_2, middleImage_2, 20);
-  saveImage(middleImage_2, "mask_2");
+  paintPixelsOutsideBoundingBox(middleImage_2, 120, 20, 245, 480);
+
+  //  Separação de cores
+
+  //Vermelho
+  increaseSaturationWithMin(middleImage_2, redImage_2, 30,45);
+  saveImage(redImage_2, "redImage1");
+  applyCompositeColorToBlackFilter(redImage_2, redImage_2, 5, 150, 15, 250);
+  saveImage(redImage_2, "redImage2");
+  applyRGBMaxFilter(redImage_2, redImage_2);
+  saveImage(redImage_2, "redImage3");
+  applyRedFilter(redImage_2, redImage_2);
+  saveImage(redImage_2, "redImage4");
+  applyBlackToWhiteFilter(redImage_2, redImage_2);
+  saveImage(redImage_2, "redImage5");
+  applyNeighborFilter(redImage_2, redImage_2, 20);
+  saveImage(redImage_2, "redImage6");
+  processHoles(redImage_2, redImage_2);
+  saveImage(redImage_2, "redImage7");
+  fillHolesBasedOnBorderContact(redImage_2, redImage_2, 20);
+  saveImage(redImage_2, "redImage8");
+  
+  // Azul
+  increaseSaturationWithMin(middleImage_2, blueImage_2, 30,45);
+  saveImage(blueImage_2, "blueImage1");
+  applyRGBMaxFilter(blueImage_2, blueImage_2);
+  saveImage(blueImage_2, "blueImage2");
+  applyBlueFilter(blueImage_2, blueImage_2);
+  saveImage(blueImage_2, "blueImage3");
+  applyBlackToWhiteFilter(blueImage_2, blueImage_2);
+  saveImage(blueImage_2, "blueImage4");
+  applyNeighborFilter(blueImage_2, blueImage_2, 5);
+  saveImage(blueImage_2, "blueImage5");
+  processHoles(blueImage_2, blueImage_2);
+  saveImage(blueImage_2, "blueImage6");
+
+  // Amarelo
+  increaseSaturationWithMin(middleImage_2, yellowImage_2, 25,75);
+  saveImage(yellowImage_2, "yellowImage1");
+  applyYellowFilter(yellowImage_2, yellowImage_2, 10, 25);
+  saveImage(yellowImage_2, "yellowImage2");
+  applyBlackToWhiteFilter(yellowImage_2, yellowImage_2);
+  saveImage(yellowImage_2, "yellowImage3");
+  applyNeighborFilter(yellowImage_2, yellowImage_2, 5);
+  saveImage(yellowImage_2, "yellowImage4");
+  applyNeighborFilter(yellowImage_2, yellowImage_2, 40);
+  saveImage(yellowImage_2, "yellowImage5");
+
+
+  // Criando a máscara
+
+  
+  sumImage_2=sumImages(redImage_2, blueImage_2, yellowImage_2);
+  saveImage(sumImage_2, "mask_2");
   mask_2 = loadImage("mask_2.png");
   compareImages(mask_2, ground_truth_2, comparacao_2);
   saveImage(comparacao_2, "comparacao_2");
@@ -174,7 +220,6 @@ void applyMedianFilter(PImage inputImage, PImage outputImage, int kernelSize) {
   outputImage.updatePixels();
 }
 
-// Função para calcular a mediana em um ArrayList de Float
 float median(ArrayList<Float> values) {
   // Implementação simples de um algoritmo de ordenação
   // Vamos usar um bubble sort para ordenar a lista devido à simplicidade
@@ -225,6 +270,48 @@ void applyCompositeColorToBlackFilter(PImage inputImage, PImage outputImage, flo
     outputImage.updatePixels();
 }
 
+void applyYellowFilter(PImage inputImage, PImage outputImage, float precisionHue, float precisionBrightness) {
+  inputImage.loadPixels();
+  outputImage.loadPixels();
+
+  for (int i = 0; i < inputImage.pixels.length; i++) {
+    color inColor = inputImage.pixels[i];
+    float h = hue(inColor);
+    float l = brightness(inColor);
+
+    // Check if the pixel is within the precision range of yellow
+    if (abs(h - 45) <= precisionHue && l >= 100-precisionBrightness) {
+      outputImage.pixels[i] = inColor;
+    } else {
+      outputImage.pixels[i] = color(0);
+    }
+  }
+
+  outputImage.updatePixels();
+}
+
+
+void applyBlueFilter(PImage inputImage, PImage outputImage) {
+  inputImage.loadPixels();
+  outputImage.loadPixels();
+
+  for (int i = 0; i < inputImage.pixels.length; i++) {
+    color inColor = inputImage.pixels[i];
+    float r = red(inColor);
+    float g = green(inColor);
+    float b = blue(inColor);
+
+    // Check if the pixel is predominantly red
+    if (b > g && b > r) {
+      outputImage.pixels[i] = inColor;
+    } else {
+      outputImage.pixels[i] = color(0);
+    }
+  }
+
+  outputImage.updatePixels();
+}
+
 void applyRedFilter(PImage inputImage, PImage outputImage) {
   inputImage.loadPixels();
   outputImage.loadPixels();
@@ -262,53 +349,81 @@ void applyBlackToWhiteFilter(PImage inputImage, PImage outputImage) {
   outputImage.updatePixels();
 }
 
-void applyNeighborFilter(PImage inputImage, PImage outputImage) {
+void applyNeighborFilter(PImage inputImage, PImage outputImage, int minGroupSize) {
   inputImage.loadPixels();
   outputImage.loadPixels();
 
-  int width = inputImage.width;
-  int height = inputImage.height;
+  int[][] visited = new int[inputImage.width][inputImage.height];
+  int[][] groups = new int[inputImage.width][inputImage.height];
+  int currentGroup = 1;
 
-  for (int i = 0; i < width; i++) {
-    for (int j = 0; j < height; j++) {
-      int pixelIndex = j * width + i;
-      color currentColor = inputImage.pixels[pixelIndex];
-      int neighborCount = 0;
-
-      // Check the neighbors in a 3x3 grid around the current pixel
-      for (int kx = -1; kx <= 1; kx++) {
-        for (int ky = -1; ky <= 1; ky++) {
-          int neighborX = i + kx;
-          int neighborY = j + ky;
-
-          // Skip the current pixel itself
-          if (kx == 0 && ky == 0) {
-            continue;
-          }
-
-          // Check if the neighbor is within the image boundaries
-          if (neighborX >= 0 && neighborX < width && neighborY >= 0 && neighborY < height) {
-            int neighborPixelIndex = neighborY * width + neighborX;
-            color neighborColor = inputImage.pixels[neighborPixelIndex];
-
-            // Check if the neighbor has the same color as the current pixel
-            if (neighborColor == currentColor) {
-              neighborCount++;
-            }
-          }
+  for (int x = 0; x < inputImage.width; x++) {
+    for (int y = 0; y < inputImage.height; y++) {
+      if (visited[x][y] == 0 && brightness(inputImage.pixels[x + y * inputImage.width]) == 255) {
+        int groupSize = floodFillGroup(inputImage, visited, groups, x, y, currentGroup);
+        if (groupSize < minGroupSize) {
+          removeGroupPixels(outputImage, groups, currentGroup);
+        } else {
+          currentGroup++;
         }
-      }
-
-      // If at least 2 neighbors have the same color, keep the pixel, otherwise set it to black
-      if (neighborCount >= 2) {
-        outputImage.pixels[pixelIndex] = currentColor;
-      } else {
-        outputImage.pixels[pixelIndex] = color(0);
       }
     }
   }
 
   outputImage.updatePixels();
+}
+
+int floodFillGroup(PImage inputImage, int[][] visited, int[][] groups, int x, int y, int group) {
+  if (x < 0 || x >= inputImage.width || y < 0 || y >= inputImage.height || visited[x][y] == 1 || brightness(inputImage.pixels[x + y * inputImage.width]) != 255) {
+    return 0;
+  }
+
+  Stack<Integer> stackX = new Stack<Integer>();
+  Stack<Integer> stackY = new Stack<Integer>();
+  stackX.push(x);
+  stackY.push(y);
+
+  int size = 0;
+
+  while (!stackX.isEmpty()) {
+    int currentX = stackX.pop();
+    int currentY = stackY.pop();
+
+    if (visited[currentX][currentY] == 0 && brightness(inputImage.pixels[currentX + currentY * inputImage.width]) == 255) {
+      visited[currentX][currentY] = 1;
+      groups[currentX][currentY] = group;
+      size++;
+
+      if (currentX - 1 >= 0) {
+        stackX.push(currentX - 1);
+        stackY.push(currentY);
+      }
+      if (currentX + 1 < inputImage.width) {
+        stackX.push(currentX + 1);
+        stackY.push(currentY);
+      }
+      if (currentY - 1 >= 0) {
+        stackX.push(currentX);
+        stackY.push(currentY - 1);
+      }
+      if (currentY + 1 < inputImage.height) {
+        stackX.push(currentX);
+        stackY.push(currentY + 1);
+      }
+    }
+  }
+
+  return size;
+}
+
+void removeGroupPixels(PImage outputImage, int[][] groups, int group) {
+  for (int x = 0; x < outputImage.width; x++) {
+    for (int y = 0; y < outputImage.height; y++) {
+      if (groups[x][y] == group) {
+        outputImage.pixels[x + y * outputImage.width] = color(0);
+      }
+    }
+  }
 }
 
 void processHoles(PImage inputImg, PImage outputImg) {
@@ -474,9 +589,44 @@ void compareImages(PImage img1, PImage img2, PImage outputImg) {
   outputImg.updatePixels();
 }
 
+PImage sumImages(PImage img1, PImage img2, PImage img3) {
+  img1.loadPixels();
+  img2.loadPixels();
+  img3.loadPixels();
+
+  PImage outputImg = createImage(img1.width, img1.height, RGB);
+  outputImg.loadPixels();
+
+  for (int i = 0; i < img1.pixels.length; i++) {
+    if (brightness(img1.pixels[i]) == 255 || brightness(img2.pixels[i]) == 255 || brightness(img3.pixels[i]) == 255) {
+      outputImg.pixels[i] = color(255); // Set pixel to white
+    } else {
+      outputImg.pixels[i] = color(0); // Set pixel to black
+    }
+  }
+
+  outputImg.updatePixels();
+  return outputImg;
+}
 
 
 void saveImage(PImage img_2, String str) {
   // Salva o mapa de profundidade
   img_2.save(str + ".png");
+}
+
+void paintPixelsOutsideBoundingBox(PImage img, int x1, int y1, int x2, int y2) {
+  int startX = min(x1, x2);
+  int startY = min(y1, y2);
+  int endX = max(x1, x2);
+  int endY = max(y1, y2);
+  
+  for (int x = 0; x < img.width; x++) {
+    for (int y = 0; y < img.height; y++) {
+      if (x < startX || x >= endX || y < startY || y >= endY) {
+        img.pixels[x + y * img.width] = color(0); // Paint pixel black
+      }
+    }
+  }
+  img.updatePixels();
 }
