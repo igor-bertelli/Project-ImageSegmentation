@@ -69,10 +69,8 @@ saveImage(middleImage_2, "middleImage24");
   saveImage(yellowImage_2, "yellowImage2");
   applyBlackToWhiteFilter(yellowImage_2, yellowImage_2);
   saveImage(yellowImage_2, "yellowImage3");
-  applyNeighborFilter(yellowImage_2, yellowImage_2, 5);
-  saveImage(yellowImage_2, "yellowImage4");
   applyNeighborFilter(yellowImage_2, yellowImage_2, 40);
-  saveImage(yellowImage_2, "yellowImage5");
+  saveImage(yellowImage_2, "yellowImage4");
 
 
   // Criando a máscara
